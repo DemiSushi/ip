@@ -61,31 +61,72 @@ public class CS2113_Bot {
         printDivider();
     }
 
-    public static void handleTodo(String arguments) {
-        Todo newTodo = new Todo(arguments.trim());
-        taskList[taskCount++] = newTodo;
-        printTaskAdded(newTodo);
+    public static void handleTodo(String line) throws CS2113BotException {
+        try {
+            String arguments = line.split(" ", 2)[1];
+            if (arguments.trim().isEmpty()) {
+                throw new CS2113BotException("Todo description cannot be empty! -.-");
+            }
+            Todo newTodo = new Todo(arguments.trim());
+            taskList[taskCount++] = newTodo;
+            printTaskAdded(newTodo);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new CS2113BotException("Todo's argument is empty hence there is nothing to do? -.-");
+        }
     }
 
-    public static void handleDeadline(String arguments) {
-        String[] parts = arguments.split(" /by ", 2);
-        String description = parts[0].trim();
-        String by = parts[1].trim();
-
-        Deadline newDeadline = new Deadline(description, by);
-        taskList[taskCount++] = newDeadline;
-        printTaskAdded(newDeadline);
+    public static void handleDeadline(String line) throws CS2113BotException {
+        try {
+            // Step 1: Try splitting the command from the arguments
+            String arguments = line.split(" ", 2)[1];
+            try {
+                // Step 2: Try splitting by /by
+                String[] parts = arguments.split(" /by ", 2);
+                String description = parts[0].trim();
+                String by = parts[1].trim();
+                if (description.isEmpty()) {
+                    throw new CS2113BotException("Deadline description cannot be empty!");
+                }
+                if (by.isEmpty()) {
+                    throw new CS2113BotException("Deadline date cannot be empty!");
+                }
+                Deadline newDeadline = new Deadline(description, by);
+                taskList[taskCount++] = newDeadline;
+                printTaskAdded(newDeadline);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // Fails here if "/by" is missing or nothing comes after "/by"
+                if (!arguments.contains(" /by ")) {
+                    throw new CS2113BotException("Missing '/by' flag! Format: deadline <desc> /by <date>");
+                } else {
+                    throw new CS2113BotException("Deadline date is not created! -.-");
+                }
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // Fails here if input was just "deadline"
+            throw new CS2113BotException("Deadline's argument is empty? -.-");
+        }
     }
 
-    public static void handleEvent(String arguments) {
-        String[] parts = arguments.split(" /from | /to ", 3);
-        String description = parts[0].trim();
-        String from = parts[1].trim();
-        String to = parts[2].trim();
-
-        Event newEvent = new Event(description, from, to);
-        taskList[taskCount++] = newEvent;
-        printTaskAdded(newEvent);
+    public static void handleEvent(String line) throws CS2113BotException {
+        try {
+            String arguments = line.split(" ", 2)[1];
+            try {
+                String[] parts = arguments.split(" /from | /to ", 3);
+                String description = parts[0].trim();
+                String from = parts[1].trim();
+                String to = parts[2].trim();
+                if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
+                    throw new CS2113BotException("Event details cannot be empty!");
+                }
+                Event newEvent = new Event(description, from, to);
+                taskList[taskCount++] = newEvent;
+                printTaskAdded(newEvent);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                throw new CS2113BotException("Event format invalid! Format: event <desc> /from <start> /to <end>");
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new CS2113BotException("Event's argument is empty. -.-");
+        }
     }
 
     public static void main(String[] args) {
@@ -106,31 +147,35 @@ public class CS2113_Bot {
             printDivider();
             String[] commandParts = line.split(" ", 2);
             String command = commandParts[0].toLowerCase();
-            String arguments = commandParts.length > 1 ? commandParts[1] : "";
-
-            switch (command) {
-                case "list":
-                    handleList();
-                    break;
-                case "mark":
-                    handleMark(line, true);
-                    break;
-                case "unmark":
-                    handleMark(line, false);
-                    break;
-                case "todo":
-                    handleTodo(arguments);
-                    break;
-                case "deadline":
-                    handleDeadline(arguments);
-                    break;
-                case "event":
-                    handleEvent(arguments);
-                    break;
-                default:
-                    System.out.println("Unknown command: " + line);
-                    printDivider();
-                    break;
+            //String arguments = commandParts[1];
+            try {
+                switch (command) {
+                    case "list":
+                        handleList();
+                        break;
+                    case "mark":
+                        handleMark(line, true);
+                        break;
+                    case "unmark":
+                        handleMark(line, false);
+                        break;
+                    case "todo":
+                        handleTodo(line);
+                        break;
+                    case "deadline":
+                        handleDeadline(line);
+                        break;
+                    case "event":
+                        handleEvent(line);
+                        break;
+                    default:
+                        System.out.println("Idk what you typed: " + line);
+                        printDivider();
+                        break;
+                }
+            } catch (CS2113BotException e) {
+                System.out.println(e.getMessage());
+                printDivider();
             }
         }
         scanner.close();
