@@ -47,21 +47,40 @@ public class CS2113_Bot {
         printDivider();
     }
 
-    public static void handleMark(String line, boolean isDone) {
-        String[] words = line.split(" ");
-        int taskIndex = Integer.parseInt(words[1]) - 1;
-        taskList[taskIndex].setDone(isDone);
+    public static void handleMark(String line, boolean isDone) throws CS2113BotException{
+        String[] words = line.trim().split("\\s+");
 
-        if (isDone) {
-            System.out.println("Nice! I've marked this task as done:");
-        } else {
-            System.out.println("OK, I've marked this task as not done yet:");
+        if (words.length != 2) {
+            throw new CS2113BotException("Please use: mark <task number>");
         }
-        System.out.println("  " + taskList[taskIndex]);
+
+        try {
+            int taskNumber = Integer.parseInt(words[1]);
+
+            if (taskNumber < 1 || taskNumber > taskCount) {
+                throw new CS2113BotException("There is no task numbered " + taskNumber + ".");
+            }
+
+            int taskIndex = taskNumber - 1;
+            taskList[taskIndex].setDone(isDone);
+
+            if (isDone) {
+                System.out.println("Nice! I've marked this task as done:");
+            } else {
+                System.out.println("OK, I've marked this task as not done yet:");
+            }
+            System.out.println("  " + taskList[taskIndex]);
+        } catch (NumberFormatException e) {
+            throw new CS2113BotException("The task number must be a whole number.");
+        }
+
         printDivider();
     }
 
     public static void handleTodo(String line) throws CS2113BotException {
+        if (taskCount >= MAX_TASKS) {
+            throw new CS2113BotException("Your task list is full.");
+        }
         try {
             String arguments = line.split(" ", 2)[1];
             if (arguments.trim().isEmpty()) {
@@ -75,7 +94,10 @@ public class CS2113_Bot {
         }
     }
 
-    public static void handleDeadline(String line) throws CS2113BotException {
+    public static void handleDeadline(String line) throws CS2113BotException{
+        if (taskCount >= MAX_TASKS) {
+            throw new CS2113BotException("Your task list is full.");
+        }
         try {
             // Step 1: Try splitting the command from the arguments
             String arguments = line.split(" ", 2)[1];
@@ -107,7 +129,10 @@ public class CS2113_Bot {
         }
     }
 
-    public static void handleEvent(String line) throws CS2113BotException {
+    public static void handleEvent(String line) throws CS2113BotException{
+        if (taskCount >= MAX_TASKS) {
+            throw new CS2113BotException("Your task list is full.");
+        }
         try {
             String arguments = line.split(" ", 2)[1];
             try {
