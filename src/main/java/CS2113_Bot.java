@@ -1,7 +1,7 @@
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class CS2113_Bot {
-    private static final int MAX_TASKS = 100;
     private static final String DIVIDER = "__________________________________";
     private static final String BANNER =
             "_    _ ______ _      _      ____   __          __  {_} _____  _      _____  \n"
@@ -10,9 +10,7 @@ public class CS2113_Bot {
                     + "|  __  |  __| | |    | |   | |  | |   \\ \\/  \\/ /   | |  _  /| |    | |  | |\n"
                     + "| |  | | |____| |____| |____| |__| |    \\  /\\  /    | | | \\ \\| |____| |__| |\n"
                     + "|_|  |_|______|______|______|\\____/      \\/  \\/     |_| |_| \\_\\______|_____/ ";
-
-    private static Task[] taskList = new Task[MAX_TASKS];
-    private static int taskCount = 0;
+    private static ArrayList<Task> taskList = new ArrayList<>();
 
     public static void printDivider() {
         System.out.println(DIVIDER);
@@ -35,14 +33,14 @@ public class CS2113_Bot {
     private static void printTaskAdded(Task task) {
         System.out.println("Got it. I've added this task:");
         System.out.println("  " + task);
-        System.out.println("Now you have " + taskCount + " tasks in the list.");
+        System.out.println("Now you have " + taskList.size() + " tasks in the list.");
         printDivider();
     }
 
     public static void handleList() {
         System.out.println("Here are the tasks in your list:");
-        for (int i = 0; i < taskCount; i++) {
-            System.out.println((i + 1) + "." + taskList[i]);
+        for (int i = 0; i < taskList.size(); i++) {
+            System.out.println((i + 1) + "." + taskList.get(i));
         }
         printDivider();
     }
@@ -57,19 +55,19 @@ public class CS2113_Bot {
         try {
             int taskNumber = Integer.parseInt(words[1]);
 
-            if (taskNumber < 1 || taskNumber > taskCount) {
+            if (taskNumber < 1 || taskNumber > taskList.size()) {
                 throw new CS2113BotException("There is no task numbered " + taskNumber + ".");
             }
 
             int taskIndex = taskNumber - 1;
-            taskList[taskIndex].setDone(isDone);
+            taskList.get(taskIndex).setDone(isDone);
 
             if (isDone) {
                 System.out.println("Nice! I've marked this task as done:");
             } else {
                 System.out.println("OK, I've marked this task as not done yet:");
             }
-            System.out.println("  " + taskList[taskIndex]);
+            System.out.println("  " + taskList.get(taskIndex));
         } catch (NumberFormatException e) {
             throw new CS2113BotException("The task number must be a whole number.");
         }
@@ -78,16 +76,13 @@ public class CS2113_Bot {
     }
 
     public static void handleTodo(String line) throws CS2113BotException {
-        if (taskCount >= MAX_TASKS) {
-            throw new CS2113BotException("Your task list is full.");
-        }
         try {
             String arguments = line.split(" ", 2)[1];
             if (arguments.trim().isEmpty()) {
                 throw new CS2113BotException("Todo description cannot be empty! -.-");
             }
             Todo newTodo = new Todo(arguments.trim());
-            taskList[taskCount++] = newTodo;
+            taskList.add(newTodo);
             printTaskAdded(newTodo);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new CS2113BotException("Todo's argument is empty hence there is nothing to do? -.-");
@@ -95,9 +90,6 @@ public class CS2113_Bot {
     }
 
     public static void handleDeadline(String line) throws CS2113BotException{
-        if (taskCount >= MAX_TASKS) {
-            throw new CS2113BotException("Your task list is full.");
-        }
         try {
             // Step 1: Try splitting the command from the arguments
             String arguments = line.split(" ", 2)[1];
@@ -113,7 +105,7 @@ public class CS2113_Bot {
                     throw new CS2113BotException("Deadline date cannot be empty!");
                 }
                 Deadline newDeadline = new Deadline(description, by);
-                taskList[taskCount++] = newDeadline;
+                taskList.add(newDeadline);
                 printTaskAdded(newDeadline);
             } catch (ArrayIndexOutOfBoundsException e) {
                 // Fails here if "/by" is missing or nothing comes after "/by"
@@ -130,9 +122,6 @@ public class CS2113_Bot {
     }
 
     public static void handleEvent(String line) throws CS2113BotException{
-        if (taskCount >= MAX_TASKS) {
-            throw new CS2113BotException("Your task list is full.");
-        }
         try {
             String arguments = line.split(" ", 2)[1];
             try {
@@ -144,7 +133,7 @@ public class CS2113_Bot {
                     throw new CS2113BotException("Event details cannot be empty!");
                 }
                 Event newEvent = new Event(description, from, to);
-                taskList[taskCount++] = newEvent;
+                taskList.add(newEvent);
                 printTaskAdded(newEvent);
             } catch (ArrayIndexOutOfBoundsException e) {
                 throw new CS2113BotException("Event format invalid! Format: event <desc> /from <start> /to <end>");
@@ -152,6 +141,27 @@ public class CS2113_Bot {
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new CS2113BotException("Event's argument is empty. -.-");
         }
+    }
+    public static void deleteEvent(String line) throws CS2113BotException {
+        String[] words = line.trim().split("\\s+");
+        if (words.length != 2) {
+            throw new CS2113BotException("Please use: delete <task number>");
+        }
+        try {
+            int taskNumber = Integer.parseInt(words[1]);
+            if (taskNumber < 1 || taskNumber > taskList.size()) {
+                throw new CS2113BotException("There is no task numbered " + taskNumber + ".");
+            }
+            int taskIndex = taskNumber - 1;
+            Task deletedTask = taskList.remove(taskIndex);
+            System.out.println("Noted. I've removed this task:");
+            System.out.println("  " + deletedTask);
+            System.out.println("Now you have " + taskList.size() + " tasks in the list.");
+
+        } catch (NumberFormatException e) {
+            throw new CS2113BotException("The task number must be a whole number.");
+        }
+        printDivider();
     }
 
     public static void main(String[] args) {
@@ -192,6 +202,9 @@ public class CS2113_Bot {
                         break;
                     case "event":
                         handleEvent(line);
+                        break;
+                    case "delete":
+                        deleteEvent(line);
                         break;
                     default:
                         System.out.println("Idk what you typed: " + line);
