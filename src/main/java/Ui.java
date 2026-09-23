@@ -78,4 +78,16 @@ public class Ui {
     public void close() {
         scanner.close();
     }
+
+    public void showFoundTasks(TaskList foundList) {
+        if (foundList.size() == 0) {
+            System.out.println("No matching tasks found in your list.");
+            return;
+        }
+        System.out.println("Here are the matching tasks in your list:");
+        for (int i = 0; i < foundList.size(); i++) {
+            System.out.println((i + 1) + "." + foundList.get(i));
+        }
+    }
+
 }

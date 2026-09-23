@@ -37,5 +37,18 @@ public class TaskList {
     public ArrayList<Task> getAllTasks() {
         return tasks;
     }
+
+    public TaskList findMatchingTasks(String keyword) {
+        ArrayList<Task> matchedTasks = new ArrayList<>();
+        String lowerKeyword = keyword.toLowerCase();
+
+        for (Task task : tasks) {
+            if (task.getDescription().toLowerCase().contains(lowerKeyword)) {
+                matchedTasks.add(task);
+            }
+        }
+        return new TaskList(matchedTasks);
+    }
+
 }
 
