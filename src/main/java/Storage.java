@@ -12,10 +12,21 @@ import java.util.Scanner;
 public class Storage {
     private final Path filePath;
 
+    /**
+     * Creates storage that reads and writes at the given file path.
+     *
+     * @param filePathString path to the task data file
+     */
     public Storage(String filePathString) {
         this.filePath = Path.of(filePathString);
     }
 
+    /**
+     * Loads tasks from storage, returning an empty list when no file exists.
+     *
+     * @return tasks reconstructed from the data file
+     * @throws CS2113BotException if the file cannot be read or contains invalid task data
+     */
     public ArrayList<Task> load() throws CS2113BotException {
         ArrayList<Task> loadedList = new ArrayList<>();
         try {
@@ -43,6 +54,12 @@ public class Storage {
         return loadedList;
     }
 
+    /**
+     * Saves all tasks to the data file, creating parent directories when required.
+     *
+     * @param taskList tasks to persist
+     * @throws CS2113BotException if the tasks cannot be saved
+     */
     public void save(ArrayList<Task> taskList) throws CS2113BotException {
         StringBuilder savedTasks = new StringBuilder();
         for (Task task : taskList) {
@@ -59,6 +76,14 @@ public class Storage {
         }
     }
 
+    /**
+     * Recreates one task from its serialized storage representation.
+     *
+     * @param line serialized task data
+     * @param lineNumber line number used in validation messages
+     * @return reconstructed task
+     * @throws CS2113BotException if the saved data is invalid
+     */
     private Task parseSavedTask(String line, int lineNumber) throws CS2113BotException {
         String[] parts = line.split(" \\| ", -1);
         if (parts.length < 3 || (!parts[1].equals("0") && !parts[1].equals("1"))) {
@@ -85,6 +110,13 @@ public class Storage {
         return task;
     }
 
+    /**
+     * Converts a task to the line format used by the storage file.
+     *
+     * @param task task to serialize
+     * @return serialized task data
+     * @throws CS2113BotException if the task cannot be stored safely
+     */
     private String formatTask(Task task) throws CS2113BotException {
         if (task == null) {
             throw new CS2113BotException("Unable to save an empty task.");
@@ -109,6 +141,13 @@ public class Storage {
         throw new CS2113BotException("Unable to save an unknown task type.");
     }
 
+    /**
+     * Checks that a task field can be stored without corrupting the file format.
+     *
+     * @param value value to validate
+     * @param fieldName human-readable name used in validation messages
+     * @throws CS2113BotException if the value is empty or contains reserved separators
+     */
     public static void validateTaskField(String value, String fieldName) throws CS2113BotException {
         if (value == null || value.trim().isEmpty()) {
             throw new CS2113BotException(fieldName + " cannot be empty.");
