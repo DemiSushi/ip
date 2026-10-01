@@ -180,7 +180,7 @@ public class CS2113_Bot {
     }
 
     /**
-     * Adds an event task using the {@code /from} and {@code /to} separators.
+     *  Adds an event task using the {@code /from} and {@code /to} separators.
      *
      * @param arguments event description, start time, and end time
      * @throws CS2113BotException if the command format is invalid or saving fails
