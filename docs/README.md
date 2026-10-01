@@ -85,6 +85,18 @@ Example:
 delete 2
 ```
 
+### Find tasks
+
+Shows tasks whose descriptions contain a keyword. The search is not case-sensitive.
+
+Format: `find KEYWORD`
+
+Example:
+
+```text
+find assignment
+```
+
 ### Exit the chatbot
 
 Closes the chatbot. Your successful task changes have already been saved automatically.

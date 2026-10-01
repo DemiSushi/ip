@@ -238,6 +238,12 @@ public class CS2113_Bot {
         ui.showTaskDeleted(deletedTask, taskList.size());
     }
 
+    /**
+     * Finds and displays tasks whose descriptions contain the supplied keyword.
+     *
+     * @param arguments keyword to search for
+     * @throws CS2113BotException if no keyword is supplied
+     */
     private void handleFind(String arguments) throws CS2113BotException {
         if (arguments.isEmpty()) {
             throw new CS2113BotException("Please provide a search keyword: find <keyword>");
