@@ -6,6 +6,11 @@ public class CS2113_Bot {
     private final TaskList taskList;
     private final Ui ui;
 
+    /**
+     * Creates the chatbot and loads any tasks stored at the given path.
+     *
+     * @param filePath location of the task data file
+     */
     public CS2113_Bot(String filePath) {
         this.ui = new Ui();
         this.storage = new Storage(filePath);
@@ -19,6 +24,9 @@ public class CS2113_Bot {
         this.taskList = loadedTasks;
     }
 
+    /**
+     * Starts the command loop and continues until the user enters {@code bye}.
+     */
     public void run() {
         ui.showWelcome();
 
@@ -47,6 +55,12 @@ public class CS2113_Bot {
         ui.close();
     }
 
+    /**
+     * Parses and performs one complete user command.
+     *
+     * @param fullCommand command text entered by the user
+     * @throws CS2113BotException if the command is invalid
+     */
     private void handleCommand(String fullCommand) throws CS2113BotException {
         String command = Parser.getCommandWord(fullCommand);
         String arguments = Parser.getArguments(fullCommand);
@@ -82,6 +96,13 @@ public class CS2113_Bot {
         }
     }
 
+    /**
+     * Changes the completion status of a task and saves the result.
+     *
+     * @param arguments task number supplied by the user
+     * @param isDone whether the task should be marked as complete
+     * @throws CS2113BotException if the task number is invalid or saving fails
+     */
     private void handleMark(String arguments, boolean isDone) throws CS2113BotException {
         String commandName = isDone ? "mark" : "unmark";
         int taskNumber = Parser.parseTaskNumber(arguments, commandName);
@@ -105,6 +126,12 @@ public class CS2113_Bot {
         ui.showMarked(task, isDone);
     }
 
+    /**
+     * Adds a todo task with the supplied description and saves it.
+     *
+     * @param arguments description of the todo task
+     * @throws CS2113BotException if the description is invalid or saving fails
+     */
     private void handleTodo(String arguments) throws CS2113BotException {
         if (arguments.isEmpty()) {
             throw new CS2113BotException("Todo description cannot be empty! -.-");
@@ -123,6 +150,12 @@ public class CS2113_Bot {
         ui.showTaskAdded(newTodo, taskList.size());
     }
 
+    /**
+     * Adds a deadline task using the {@code /by} separator and saves it.
+     *
+     * @param arguments deadline description and date
+     * @throws CS2113BotException if the command format is invalid or saving fails
+     */
     private void handleDeadline(String arguments) throws CS2113BotException {
         String[] parts = arguments.split(" /by ", 2);
         if (parts.length < 2 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty()) {
@@ -149,6 +182,12 @@ public class CS2113_Bot {
         ui.showTaskAdded(newDeadline, taskList.size());
     }
 
+    /**
+     * Adds an event task using the {@code /from} and {@code /to} separators.
+     *
+     * @param arguments event description, start time, and end time
+     * @throws CS2113BotException if the command format is invalid or saving fails
+     */
     private void handleEvent(String arguments) throws CS2113BotException {
         String[] parts = arguments.split(" /from | /to ", 3);
         if (parts.length < 3 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty() || parts[2].trim().isEmpty()) {
@@ -174,6 +213,12 @@ public class CS2113_Bot {
         ui.showTaskAdded(newEvent, taskList.size());
     }
 
+    /**
+     * Removes the selected task and saves the updated task list.
+     *
+     * @param arguments task number supplied by the user
+     * @throws CS2113BotException if the task number is invalid or saving fails
+     */
     private void handleDelete(String arguments) throws CS2113BotException {
         int taskNumber = Parser.parseTaskNumber(arguments, "delete");
 
@@ -201,7 +246,11 @@ public class CS2113_Bot {
         ui.showFoundTasks(matches);
     }
 
-
+    /**
+     * Launches the chatbot using its default storage location.
+     *
+     * @param args command-line arguments, which are not used
+     */
     public static void main(String[] args) {
         new CS2113_Bot("data/duke.txt").run();
     }
