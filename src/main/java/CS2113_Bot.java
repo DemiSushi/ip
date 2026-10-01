@@ -87,6 +87,9 @@ public class CS2113_Bot {
             case "delete":
                 handleDelete(arguments);
                 break;
+            case "find":
+                handleFind(arguments);
+                break;
             default:
                 System.out.println("Idk what you typed: " + fullCommand);
                 break;
@@ -233,6 +236,14 @@ public class CS2113_Bot {
             throw e;
         }
         ui.showTaskDeleted(deletedTask, taskList.size());
+    }
+
+    private void handleFind(String arguments) throws CS2113BotException {
+        if (arguments.isEmpty()) {
+            throw new CS2113BotException("Please provide a search keyword: find <keyword>");
+        }
+        TaskList matches = taskList.findMatchingTasks(arguments);
+        ui.showFoundTasks(matches);
     }
 
     /**
